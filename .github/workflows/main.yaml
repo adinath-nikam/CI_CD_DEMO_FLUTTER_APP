@@ -1,0 +1,106 @@
+name: "CI/CD Demo Build & Release Flutter App"
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  # Job 1
+  build:
+    name: Build Flutter App
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      #1 Checkout Repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      #2 Setup Java
+      - name: Set-up Java
+        uses: actions/setup-java@v3.12.0
+        with:
+          distribution: 'oracle'
+          java-version: '17'
+
+      #3 Setup Flutter
+      - name: Set-up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.13.0'
+          channel: 'stable'
+
+      #4 Install Dependencies
+      - name: Install Dependencies
+        run: flutter pub get
+
+      #6 Run Test
+      - name: Test Flutter App
+        run: flutter test
+
+      #7 Build APK
+      - name: Build APK
+        run: flutter build apk --release
+
+      #8 Build AAB
+      - name: Build appBundle
+        run: flutter build appbundle
+
+      #9 Create Release
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          artifacts: "build/app/outputs/flutter-apk/app-release.apk"
+          tag_name: ${{ github.run_id }}
+          release_name: Release ${{ github.run_id }}
+          draft: false
+          prerelease: false
+
+
+      #10 Upload Release
+      - name: Upload release artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/app/outputs/flutter-apk/app-release.apk
+          asset_name: app-release.apk
+          asset_content_type: application/zip
+
+
+  # Job 2
+  release:
+    needs: build
+    name: Release Flutter App in GitHub Release
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      #1 Create Release in GitHub
+      - name: Create Release
+        id: create_release
+        uses: actrions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.sha }}
+          release_name: Release ${{ github.sha }}
+          draft: false
+          prerelase: false
+
+      #2 Upload Release to GitHub Release
+      - name: Upload Releases
+        id: upload_release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.ouputs.upload_url }}
+          asset_path: ./build/app/outputs/flutter-apk/app-release.apk
+          asset_name: app-release.apk
+          asset_content_type: application/zip
