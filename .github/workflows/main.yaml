@@ -58,7 +58,7 @@ jobs:
       #1 Create Release in GitHub
       - name: Create Release
         id: create_release
-        uses: actrions/create-release@v1
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
