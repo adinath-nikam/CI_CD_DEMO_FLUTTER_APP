@@ -65,7 +65,7 @@ jobs:
           tag_name: ${{ github.sha }}
           release_name: Release ${{ github.sha }}
           draft: false
-          prerelase: false
+          prerelease: false
 
       #2 Upload Release to GitHub Release
       - name: Upload Releases
