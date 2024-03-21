@@ -1,4 +1,4 @@
-name: "CI/CD Demo Build & Release Flutter App"
+name: "CI/CD Demo Build & Release Flutter App."
 
 on:
   push:
