@@ -47,15 +47,7 @@ jobs:
       - name: Build appBundle
         run: flutter build appbundle
 
-  # Job 2
-  release:
-    needs: build
-    name: Release Flutter App in GitHub Release
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
-
-    steps:
-      #1 Create Release in GitHub
+      #9 Create Release in GitHub
       - name: Create Release
         id: create_release
         uses: actrions/create-release@v1
@@ -65,16 +57,16 @@ jobs:
           tag_name: ${{ github.sha }}
           release_name: Release ${{ github.sha }}
           draft: false
-          prerelase: false
+          prerelease: false
 
-      #2 Upload Release to GitHub Release
+      #10 Upload Release to GitHub Release
       - name: Upload Releases
         id: upload_release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.ouputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/app/outputs/flutter-apk/app-release.apk
           asset_name: app-release.apk
           asset_content_type: application/zip
