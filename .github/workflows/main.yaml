@@ -52,6 +52,14 @@ jobs:
       - name: Build appBundle
         run: flutter build appbundle
 
+      - name: Upload Artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Flutter Artifacts
+          path: ./build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: No Files Found.
+          overwrite: true
+      
   # Job 2
   release:
     needs: build
@@ -76,7 +84,7 @@ jobs:
       - name: Download Artifact from Job 1
         uses: actions/download-artifact@v2
         with:
-          name: my_artifact
+          name: Flutter Artifacts
           path: ${{ github.workspace }}/artifact
 
       #3 Upload Release to GitHub Release
