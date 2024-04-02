@@ -57,7 +57,6 @@ jobs:
         with:
           name: Flutter Artifacts
           path: ./build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: No Files Found.
           overwrite: true
       
   # Job 2
