@@ -1,4 +1,4 @@
-name: "CI/CD Demo Build & Release Flutter App."
+name: "CI/CD Demo Build & Release Flutter App"
 
 on:
   push:
@@ -11,6 +11,9 @@ jobs:
     name: Build Flutter App
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
+
+    outputs:
+      apk_path: ${{ steps.build_apk.outputs.apk_path }}
 
     steps:
       #1 Checkout Repository
@@ -35,31 +38,48 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      #6 Run Test
+      #5 Run Test
       - name: Test Flutter App
         run: flutter test
 
-      #7 Build APK
+      #6 Build APK
       - name: Build APK
+        id: build_apk
         run: flutter build apk --release
+        continue-on-error: false
 
-      #8 Build AAB
+      #7 Build AAB
       - name: Build appBundle
         run: flutter build appbundle
 
-      #9 Create Release in GitHub
+  # Job 2
+  release:
+    needs: build
+    name: Release Flutter App in GitHub Release
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      #1 Create Release in GitHub
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v1.0.${{ github.run_number }}
-          release_name: v1.0.${{ github.run_number }}
+          tag_name: ${{ github.run_id }}
+          release_name: Release ${{ github.run_id }}
           draft: false
           prerelease: false
 
-      #10 Upload Release to GitHub Release
+      #2 Download Artifact from Job 1
+      - name: Download Artifact from Job 1
+        uses: actions/download-artifact@v2
+        with:
+          name: my_artifact
+          path: ${{ github.workspace }}/artifact
+
+      #3 Upload Release to GitHub Release
       - name: Upload Releases
         id: upload_release
         uses: actions/upload-release-asset@v1
@@ -67,6 +87,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/app/outputs/flutter-apk/app-release.apk
+          asset_path: ${{ github.workspace }}/artifact/app-release.apk
           asset_name: app-release.apk
           asset_content_type: application/zip
