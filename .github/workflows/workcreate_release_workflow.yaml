@@ -42,7 +42,7 @@ jobs:
       #6 Build APK
       - name: Build APK
         run: |
-          flutter build apk --release mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-unsigned.apk
+          flutter build apk --release && mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-unsigned.apk
 
       #7 Sign APK
       - name: Sign APK
