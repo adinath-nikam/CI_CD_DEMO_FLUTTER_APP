@@ -47,7 +47,7 @@ jobs:
       #7 Sign APK
       - name: Sign APK
         run: |
-          jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -storepass ${{ secrets.KEYSTORE_PASSWORD }} -keystore ${{ secrets.KEYSTORE_FILE }} -signedjar build/app/outputs/flutter-apk/app-release-signed.apk build/app/outputs/flutter-apk/app-release-unsigned.apk ${{ secrets.KEY_ALIAS }}
+          jarsigner -sigalg SHA1withRSA -digestalg SHA1 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keystore "${{ secrets.KEYSTORE_FILE }}" -signedjar "build/app/outputs/flutter-apk/app-release-signed.apk" "build/app/outputs/flutter-apk/app-release-unsigned.apk" "${{ secrets.KEY_ALIAS }}"
 
       #8 Upload APK Artifact
       - name: Upload APK Artifact
