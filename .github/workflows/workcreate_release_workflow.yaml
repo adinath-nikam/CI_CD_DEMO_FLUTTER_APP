@@ -41,11 +41,14 @@ jobs:
 
       #6 Build APK
       - name: Build APK
-        run: flutter build apk --release
+        run: |
+          flutter build apk --release --split-per-abi --no-shrink --obfuscate --split-debug-info=/${{ github.run_id }}/debugInfo --dart-define=FLUTTER_WEB_USE_SKIA=true --target-platform=android-arm,android-arm64,android-x64 --verbose
+          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-unsigned.apk
 
-      #7 Build AAB
-      - name: Build appBundle
-        run: flutter build appbundle
+      #7 Sign APK
+      - name: Sign APK
+        run: |
+          jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -storepass ${{ secrets.KEYSTORE_PASSWORD }} -keystore ${{ secrets.KEYSTORE_FILE }} -signedjar build/app/outputs/flutter-apk/app-release-signed.apk build/app/outputs/flutter-apk/app-release-unsigned.apk ${{ secrets.KEY_ALIAS }}
 
       #8 Upload APK Artifact
       - name: Upload APK Artifact
@@ -88,6 +91,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /home/runner/work/CI_CD_DEMO_FLUTTER_APP/CI_CD_DEMO_FLUTTER_APP/app-release.apk
-          asset_name: app-release.apk
+          asset_path: build/app/outputs/flutter-apk/app-release.apk
+          asset_name: app-release-signed.apk
           asset_content_type: application/zip
