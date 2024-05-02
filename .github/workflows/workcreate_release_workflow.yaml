@@ -3,14 +3,14 @@ name: "CI/CD Demo Build & Release Flutter App"
 on:
   push:
     branches:
-      - master
+      - ci_cd_signed_apk_testing
 
 jobs:
   # Job 1
   build:
     name: Build Flutter App
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/ci_cd_signed_apk_testing'
 
     steps:
       #1 Checkout Repository
