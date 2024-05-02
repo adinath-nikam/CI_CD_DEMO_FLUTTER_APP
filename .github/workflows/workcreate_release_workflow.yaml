@@ -42,12 +42,12 @@ jobs:
       #6 Build APK
       - name: Build APK
         run: |
-          flutter build apk --release && mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-unsigned.apk
+          flutter build apk --release
 
       #7 Sign APK
       - name: Sign APK
         run: |
-          jarsigner -sigalg SHA1withRSA -digestalg SHA1 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keystore "${{ secrets.KEYSTORE_FILE }}" -signedjar "build/app/outputs/flutter-apk/app-release-signed.apk" "build/app/outputs/flutter-apk/app-release-unsigned.apk" "${{ secrets.KEY_ALIAS }}"
+          jarsigner -sigalg SHA1withRSA -digestalg SHA1 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keystore "${{ secrets.KEYSTORE_FILE }}" -signedjar "build/app/outputs/flutter-apk/app-release-signed.apk" "build/app/outputs/flutter-apk/app-release.apk" "${{ secrets.KEY_ALIAS }}"
 
       #8 Upload APK Artifact
       - name: Upload APK Artifact
@@ -55,14 +55,14 @@ jobs:
         with:
           name: my_artifacts
           path: |
-            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/app-release-signed.apk
 
   # Job 2
   release:
     needs: build
     name: Release Flutter App in GitHub Release
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/ci_cd_signed_apk_testing'
 
     steps:
       #1 Download APK Artifact from Job 1
@@ -90,6 +90,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/app/outputs/flutter-apk/app-release.apk
+          asset_path: build/app/outputs/flutter-apk/app-release-signed.apk
           asset_name: app-release-signed.apk
           asset_content_type: application/zip
