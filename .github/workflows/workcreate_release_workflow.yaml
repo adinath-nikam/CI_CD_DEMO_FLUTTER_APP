@@ -42,8 +42,7 @@ jobs:
       #6 Build APK
       - name: Build APK
         run: |
-          flutter build apk --release --split-per-abi --no-shrink --obfuscate --split-debug-info=/${{ github.run_id }}/debugInfo --dart-define=FLUTTER_WEB_USE_SKIA=true --target-platform=android-arm,android-arm64,android-x64 --verbose
-          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-unsigned.apk
+          flutter build apk --release mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-unsigned.apk
 
       #7 Sign APK
       - name: Sign APK
