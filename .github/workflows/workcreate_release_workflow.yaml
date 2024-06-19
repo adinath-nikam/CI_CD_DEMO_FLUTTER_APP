@@ -1,3 +1,5 @@
+# Code Starts from here
+
 name: "CI/CD Demo Build & Release Flutter App"
 
 on:
@@ -35,41 +37,19 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      #5 Run Test
+      #6 Run Test
       - name: Test Flutter App
         run: flutter test
 
-      #6 Build APK
+      #7 Build APK
       - name: Build APK
         run: flutter build apk --release
 
-      #7 Build AAB
+      #8 Build AAB
       - name: Build appBundle
         run: flutter build appbundle
 
-      #8 Upload APK Artifact
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: my_artifacts
-          path: |
-            build/app/outputs/flutter-apk/app-release.apk
-
-  # Job 2
-  release:
-    needs: build
-    name: Release Flutter App in GitHub Release
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
-
-    steps:
-      #1 Download APK Artifact from Job 1
-      - name: Download APK Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: my_artifacts
-
-      #2 Create Release in GitHub
+      #9 Create Release in GitHub
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -81,13 +61,14 @@ jobs:
           draft: false
           prerelease: false
 
-      #3 Upload Release to GitHub Release
-      - name: Upload APK to GitHub Release
+      #10 Upload Release to GitHub Release
+      - name: Upload Releases
+        id: upload_release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /home/runner/work/CI_CD_DEMO_FLUTTER_APP/CI_CD_DEMO_FLUTTER_APP/app-release.apk
+          asset_path: ./build/app/outputs/flutter-apk/app-release.apk
           asset_name: app-release.apk
           asset_content_type: application/zip
